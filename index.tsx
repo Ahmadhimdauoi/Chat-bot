@@ -3,10 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 // Fix: Correct import for GoogleGenAI.
 import { GoogleGenAI } from '@google/genai';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Configure pdf.js worker to be fetched from a CDN.
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 // --- Type Definitions (formerly types.ts) ---
 interface ChatMessage {
@@ -176,27 +172,6 @@ const App = () => {
   };
 
   useEffect(scrollToBottom, [messages]);
-  
-  // Fix: Inject global styles into the document head to avoid React reconciliation errors.
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.innerHTML = `
-      body { margin: 0; }
-      ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-track { background: #f1f1f1; }
-      ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
-      ::-webkit-scrollbar-thumb:hover { background: #555; }
-      button:disabled { background-color: #ccc !important; cursor: not-allowed; }
-      @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(styleElement);
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []); // Empty dependency array ensures this runs only once.
 
   const handleSendMessage = async () => {
     if ((!input.trim() && !selectedFile) || isLoading) return;
@@ -242,45 +217,59 @@ const App = () => {
   };
 
   return (
-    <div style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f0f0' }}>
-      <div style={{ width: '100%', maxWidth: '600px', height: '80vh', display: 'flex', flexDirection: 'column', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-        <header style={{ padding: '16px', borderBottom: '1px solid #ccc', fontWeight: 'bold', backgroundColor: '#f7f7f7', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
-          Gemini PDF Chat
-        </header>
-        <main style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', backgroundColor: '#e5ddd5' }}>
-            {messages.map((msg, index) => (
-                <ChatMessageComponent key={index} message={msg} />
-            ))}
-            {isLoading && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <div style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '10px', maxWidth: '70%', boxShadow: '0 1px 1px rgba(0,0,0,0.1)' }}>
-                        <LoadingSpinner />
-                    </div>
-                </div>
-            )}
-            <div ref={messagesEndRef} />
-        </main>
-        <footer style={{ padding: '10px', borderTop: '1px solid #ccc', display: 'flex', alignItems: 'center', backgroundColor: '#f0f0f0' }}>
-          <PdfUploader 
-            onFileSelect={setSelectedFile} 
-            selectedFile={selectedFile}
-            clearFile={() => setSelectedFile(null)}
-          />
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Type your message..."
-            style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '20px', marginRight: '8px', outline: 'none' }}
-            disabled={isLoading}
-          />
-          <button onClick={handleSendMessage} disabled={isLoading || (!input.trim() && !selectedFile)} style={{ padding: '8px', border: 'none', backgroundColor: '#007bff', color: 'white', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }}>
-            <SendIcon />
-          </button>
-        </footer>
+    <>
+      <style>{`
+        body { margin: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        button:disabled { background-color: #ccc !important; cursor: not-allowed; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+      `}</style>
+      <div style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f0f0' }}>
+        <div style={{ width: '100%', maxWidth: '600px', height: '80vh', display: 'flex', flexDirection: 'column', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+          <header style={{ padding: '16px', borderBottom: '1px solid #ccc', fontWeight: 'bold', backgroundColor: '#f7f7f7', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
+            Gemini PDF Chat
+          </header>
+          <main style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', backgroundColor: '#e5ddd5' }}>
+              {messages.map((msg, index) => (
+                  <ChatMessageComponent key={index} message={msg} />
+              ))}
+              {isLoading && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                      <div style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '10px', maxWidth: '70%', boxShadow: '0 1px 1px rgba(0,0,0,0.1)' }}>
+                          <LoadingSpinner />
+                      </div>
+                  </div>
+              )}
+              <div ref={messagesEndRef} />
+          </main>
+          <footer style={{ padding: '10px', borderTop: '1px solid #ccc', display: 'flex', alignItems: 'center', backgroundColor: '#f0f0f0' }}>
+            <PdfUploader 
+              onFileSelect={setSelectedFile} 
+              selectedFile={selectedFile}
+              clearFile={() => setSelectedFile(null)}
+            />
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Type your message..."
+              style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '20px', marginRight: '8px', outline: 'none' }}
+              disabled={isLoading}
+            />
+            <button onClick={handleSendMessage} disabled={isLoading || (!input.trim() && !selectedFile)} style={{ padding: '8px', border: 'none', backgroundColor: '#007bff', color: 'white', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }}>
+              <SendIcon />
+            </button>
+          </footer>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
