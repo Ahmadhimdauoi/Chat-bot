@@ -27,7 +27,10 @@
 </head>
   <body class="bg-slate-900 text-white">
     <div id="root"></div>
-    <!-- Change script type to text/babel for Babel to process it -->
-    <script type="text/babel" data-type="module" src="./index.tsx"></script>
+    <!-- 
+      FIX: Changed src to an absolute path including the repo name.
+      This resolves the 404 Not Found error on GitHub Pages.
+    -->
+    <script type="text/babel" data-type="module" src="/Chat-bot/index.tsx"></script>
   </body>
 </html>
