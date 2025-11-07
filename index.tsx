@@ -91,12 +91,6 @@ const LoadingSpinner = () => (
             height: '16px',
             animation: 'spin 1s linear infinite'
         }}></div>
-        <style>{`
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `}</style>
     </div>
 );
 
@@ -183,6 +177,27 @@ const App = () => {
 
   useEffect(scrollToBottom, [messages]);
   
+  // Fix: Inject global styles into the document head to avoid React reconciliation errors.
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `
+      body { margin: 0; }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f1f1; }
+      ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #555; }
+      button:disabled { background-color: #ccc !important; cursor: not-allowed; }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []); // Empty dependency array ensures this runs only once.
+
   const handleSendMessage = async () => {
     if ((!input.trim() && !selectedFile) || isLoading) return;
 
@@ -265,14 +280,6 @@ const App = () => {
           </button>
         </footer>
       </div>
-      <style>{`
-        body { margin: 0; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        button:disabled { background-color: #ccc !important; cursor: not-allowed; }
-      `}</style>
     </div>
   );
 };
