@@ -1,10 +1,2 @@
-export interface ChatMessage {
-  role: 'user' | 'model' | 'system';
-  text: string;
-}
-
-export interface Group {
-  id: string;
-  name: string;
-  files: File[];
-}
+// This file is no longer needed and can be deleted.
+// All code has been merged into index.tsx to solve module loading issues.
