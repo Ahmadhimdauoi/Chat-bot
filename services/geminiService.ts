@@ -1,15 +1,14 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { fileToBase64 } from '../utils/fileUtils';
 import type { ActiveFile } from '../App';
 
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-    throw new Error("API_KEY environment variable is not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const getAiClient = () => {
+    const apiKey = localStorage.getItem('gemini-api-key');
+    if (!apiKey) {
+        throw new Error("API Key not found in local storage.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
 
 const systemInstruction = `
 أنت مساعد دراسي ذكي. مهمتك الأساسية هي الإجابة على أسئلة الطلاب بالاعتماد حصرياً على المعلومات الموجودة داخل ملفات PDF المحددة التي يتم تزويدك بها.
@@ -30,6 +29,8 @@ export const getAnswerFromFiles = async (
   activeFile: ActiveFile
 ): Promise<string> => {
   try {
+    const ai = getAiClient(); // Get client with key from localStorage
+
     let filesToProcess: File[];
     if (activeFile === 'all') {
       filesToProcess = files;
@@ -68,6 +69,15 @@ export const getAnswerFromFiles = async (
     return response.text;
   } catch (error) {
     console.error("Error calling Gemini API:", error);
+    if (error instanceof Error) {
+        if (error.message.includes("API Key not found")) {
+            return "لم يتم العثور على مفتاح الواجهة البرمجية (API Key). يرجى التأكد من إضافته في الصفحة الرئيسية.";
+        }
+        if (error.message.includes('API key not valid')) {
+            localStorage.removeItem('gemini-api-key');
+            return "مفتاح الواجهة البرمجية (API Key) غير صالح. تم حذفه. يرجى تحديث الصفحة وإدخال مفتاح صحيح.";
+        }
+    }
     return "حدث خطأ أثناء محاولة الحصول على إجابة. يرجى المحاولة مرة أخرى.";
   }
 };

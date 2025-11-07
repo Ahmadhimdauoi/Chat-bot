@@ -8,11 +8,21 @@ import ChatWindow from './components/ChatWindow';
 export type ActiveFile = File | 'all';
 
 const App: React.FC = () => {
+  const [apiKey, setApiKey] = useState<string | null>(() => localStorage.getItem('gemini-api-key'));
+  const [tempApiKey, setTempApiKey] = useState('');
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroup, setActiveGroup] = useState<Group | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [activeFile, setActiveFile] = useState<ActiveFile>('all');
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tempApiKey.trim()) {
+      localStorage.setItem('gemini-api-key', tempApiKey.trim());
+      setApiKey(tempApiKey.trim());
+    }
+  };
 
   const handleAddGroup = useCallback((name: string) => {
     const newGroup: Group = { id: Date.now().toString(), name, files: [] };
@@ -66,6 +76,40 @@ const App: React.FC = () => {
     setChatHistory([]);
     setIsLoading(false);
   };
+
+  if (!apiKey) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl text-center">
+          <h1 className="text-2xl font-bold text-slate-100 mb-4">مطلوب مفتاح الواجهة البرمجية</h1>
+          <p className="text-slate-400 mb-6">
+            لاستخدام هذا التطبيق، يرجى إدخال مفتاح Gemini API الخاص بك. سيتم حفظ المفتاح في المتصفح المحلي فقط.
+          </p>
+          <form onSubmit={handleApiKeySubmit}>
+            <input
+              type="password"
+              value={tempApiKey}
+              onChange={(e) => setTempApiKey(e.target.value)}
+              placeholder="أدخل مفتاح Gemini API هنا"
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400 text-center"
+            />
+            <button
+              type="submit"
+              disabled={!tempApiKey.trim()}
+              className="mt-6 w-full px-6 py-3 text-lg font-bold text-white bg-sky-600 rounded-full hover:bg-sky-500 transition-colors disabled:bg-slate-600 disabled:cursor-not-allowed"
+            >
+              حفظ ومتابعة
+            </button>
+          </form>
+          <p className="text-xs text-slate-500 mt-4">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline hover:text-sky-400">
+              احصل على مفتاح Gemini API من هنا
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 md:p-8 transition-all duration-500">
