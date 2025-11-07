@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { ChatMessage as ChatMessageType } from '../types';
-import type { ActiveFile } from '../App';
-import ChatMessage from './ChatMessage';
-import { SendIcon, DocumentIcon, BotIcon } from './icons';
+import type { ChatMessage as ChatMessageType } from '../types.ts';
+import type { ActiveFile } from '../App.tsx';
+import ChatMessage from './ChatMessage.tsx';
+import { SendIcon, DocumentIcon, BotIcon } from './icons.tsx';
 
 interface ChatWindowProps {
   chatHistory: ChatMessageType[];

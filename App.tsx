@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import type { ChatMessage, Group } from './types';
-import { getAnswerFromFiles } from './services/geminiService';
-import AdminDashboard from './components/AdminDashboard';
-import ChatWindow from './components/ChatWindow';
+import type { ChatMessage, Group } from './types.ts';
+import { getAnswerFromFiles } from './services/geminiService.ts';
+import AdminDashboard from './components/AdminDashboard.tsx';
+import ChatWindow from './components/ChatWindow.tsx';
 
 // Define a type for the active file selection
 export type ActiveFile = File | 'all';

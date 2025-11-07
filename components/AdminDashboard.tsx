@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import type { Group } from '../types';
-import { DocumentIcon, PlusIcon, ChatBubbleLeftRightIcon, UploadIcon } from './icons';
+import type { Group } from '../types.ts';
+import { DocumentIcon, PlusIcon, ChatBubbleLeftRightIcon, UploadIcon } from './icons.tsx';
 
 interface AdminDashboardProps {
   groups: Group[];

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { fileToBase64 } from '../utils/fileUtils';
-import type { ActiveFile } from '../App';
+import { fileToBase64 } from '../utils/fileUtils.ts';
+import type { ActiveFile } from '../App.tsx';
 
 const getAiClient = () => {
     const apiKey = localStorage.getItem('gemini-api-key');
