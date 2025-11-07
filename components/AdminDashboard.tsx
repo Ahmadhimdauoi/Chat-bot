@@ -93,7 +93,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ groups, onAddGroup, onA
                 </button>
                 <input
                     type="file"
-                    // Fix: Changed ref callback to have a block body to ensure it returns void.
                     ref={el => {fileInputRefs.current[group.id] = el}}
                     onChange={(e) => handleFileChange(e, group.id)}
                     className="hidden"
